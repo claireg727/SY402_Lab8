@@ -1,0 +1,80 @@
+# This code is meant to go through all the files except specified ones
+
+import os               # used for the os.walk() function
+import hashlib          # used to hash the files
+import csv              # used to create and write to a CSV file 
+import datetime         # used to obtain the current time and date
+
+# This is the list of directories not to traverse through
+unhashableLst = [
+	'/dev',
+	'/proc',
+	'/run',
+	'/sys',
+	'/tmp',
+	'/var/lib',
+	'/var/run'
+]
+
+# This dictionary will be loaded with data from the previous CSV file
+oldCsvData = {}
+
+# open the output CSV file and load into dictionary
+# Source: geeksforgeeks.org/load-csv-data-into-list-and-dictionary-using-python/
+with open('filehashes.csv', 'r') as data:
+	for line in csv.reader(data):
+		oldCsvData[line[0]] = [line[1], line[2]]   # add to dictionary
+data.close()                                 # close file
+print()
+print('1) Loaded old CSV information')
+
+# This dictionary contains each row of the output CSV file where we will store the information
+csvRows = {}
+
+# os.walk to iterate 
+# Source link: kite.com/python.answers/how-to-list-all-subdirectories-and-files-in-a-given-directory-in-python#
+rootDir = '/'
+for root, subdirectories, files in os.walk(rootDir):
+	for file in files:
+		#Source Link: geeksforgeeks.org/python-check-if-string-starts-with-any-element-in-list/
+		unhashable = root.startswith(tuple(unhashableLst))
+		if unhashable == True:                            # if unhashable directory specified, move to next one
+			continue
+		else:                                             # if not, save the file name
+			fileName = os.path.join(root, file)
+			# open file, hash it, and store the file name, the hash, and the time and date
+			try:
+				f = open(fileName, 'rb')
+				bytesToRead = f.read()
+				hash = hashlib.sha256(bytesToRead).hexdigest()
+				# Source: programiz.com/python-programming/datetime/strftime
+				now = datetime.datetime.now()
+				timeStamp = now.strftime("%m-%d-%Y %H:%M:%S.%f")
+				csvRows[fileName] = [hash, timeStamp]
+				f.close()
+			except IOError:  # if file can't open (not all files listed in the system actually exist), move on to next file
+				continue
+
+print()
+print('2) Traversed through files')
+
+# Dictionary to store added files
+addedFiles{}
+# Dictionary to store modified files 
+modif
+
+# Compare dictionaries to see modified new files
+for key in csvRows:
+	if key in oldCsvData:
+		
+
+# open the same CSV file and overwrite, adding the contents of csvRows
+with open('filehashes.csv', 'w') as csvfile:
+	csvwriter = csv.writer(csvfile)
+	fields = ['File Path', 'Hash', 'Date and Time']
+	csvwriter.writerow(fields)
+	csvwriter.writerows(csvRows)
+
+print()
+print('3) Wrote new data to CSV file')
+csvfile.close()
