@@ -1,19 +1,10 @@
+
 # This code is meant to go through all the files except specified ones
 
 import os               # used for the os.walk() function
 import hashlib          # used to hash the files
 import csv              # used to create and write to a CSV file 
 import datetime         # used to obtain the current time and date
-
-# import old CSV file and store in dictionary
-# Source: geeksforgeeks.org/load-csv-data-into-list-and-dictionary-using-python/
-oldCsvData = {}
-
-with open('filehashes.csv', 'r') as data:
-	for line in csv.reader(data):
-		oldCsvData[line[0]] = [line[1], line[2]]
-del oldCsvData['File Path']
-data.close()
 
 # This is the list of directories not to traverse through
 unhashableLst = [
@@ -29,6 +20,20 @@ unhashableLst = [
 # This list contains each row of the output CSV file where we will store the information
 csvRows =[]
 csvRowsDict = {}
+
+# This list will be loaded with data from the previous CSV file
+oldCsvData = {}
+
+# open the output CSV file and load into dictionary
+# Source: geeksforgeeks.org/load-csv-data-into-list-and-dictionary-using-python/
+
+with open('filehashes.csv', 'r') as data:
+	for line in csv.reader(data):
+		oldCsvData[line[0]] = [line[1], line[2]]   # add to dictionary
+del oldCsvData['File Path']                  # delete CSV header item
+del oldCsvData['/']
+data.close()                                 # close file
+
 
 # os.walk to iterate 
 # Source link: kite.com/python.answers/how-to-list-all-subdirectories-and-files-in-a-given-directory-in-python#
@@ -59,7 +64,7 @@ for root, subdirectories, files in os.walk(rootDir):
 # compare dictionaries to find differences
 addedFiles = []
 modifiedFiles = []
- 
+
 for key in csvRowsDict.keys():
 	if key in oldCsvData.keys():
 		if oldCsvData[key][0] == csvRowsDict[key][0]:
@@ -77,15 +82,14 @@ for key in oldCsvData.keys():
 		deletedFiles.append(key)
 
 
-
-# open the output CSV file and add the contents of csvRows
+# open the same CSV file and overwrite, adding the contents of csvRows
 with open('filehashes.csv', 'w') as csvfile:
 	csvwriter = csv.writer(csvfile)
 	fields = ['File Path', 'Hash', 'Date and Time']
 	csvwriter.writerow(fields)
 	csvwriter.writerows(csvRows)
-
 csvfile.close()
+
 
 # Print out differences in files 
 print("Summary of findings:")
@@ -111,3 +115,5 @@ else:
 	print('These files were deleted:')
 	for item in deletedFiles:
 		print(item)
+
+
