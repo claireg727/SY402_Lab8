@@ -31,7 +31,6 @@ with open('filehashes.csv', 'r') as data:
 	for line in csv.reader(data):
 		oldCsvData[line[0]] = [line[1], line[2]]   # add to dictionary
 del oldCsvData['File Path']                  # delete CSV header item
-del oldCsvData['/']
 data.close()                                 # close file
 
 
